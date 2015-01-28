@@ -4,7 +4,7 @@ Simple solar system simulator. Everything is procedurally generated, so it can b
 No real planet physics as for now.
 
 ## Binaries
-You can get the latest stable build [here](http://deseven.info/).
+You can get the latest stable build [here](http://deseven.info/soft).
 
 ## Compatibility
 Tested on Windows XP/7. OpenGL version (for Mac/Linux) is not supported right now.
