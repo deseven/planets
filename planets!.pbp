@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.30 (Windows - x86)">
+  <section name="config">
+    <options closefiles="1" openmode="0" name="planets!"/>
+  </section>
+  <section name="data">
+    <explorer view="C:\Users\deseven\Documents\" pattern="0"/>
+    <log show="1"/>
+    <lastopen date="2015-01-28 17:34" user="deseven" host="DE7PC"/>
+  </section>
+  <section name="files">
+    <file name="const.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="6dd33eed4736ff0c13ffc70381c07d07"/>
+    </file>
+    <file name="main.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="a99da998ddabfa3aa3a9268cc51d8664"/>
+    </file>
+    <file name="perlin.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="6e2fb85f8b5477a601c37e5cde9496a0"/>
+    </file>
+    <file name="proc.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="ee517d5dc7cdab215c3d39c465848817"/>
+    </file>
+  </section>
+  <section name="targets">
+    <target name="Default Target" enabled="1" default="1">
+      <inputfile value="main.pb"/>
+      <outputfile value="planets!.exe"/>
+      <executable value="planets!.exe"/>
+      <options unicode="1" xpskin="1" debug="1"/>
+      <temporaryexe value="source"/>
+    </target>
+  </section>
+</project>
