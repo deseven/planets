@@ -7,24 +7,24 @@
   <section name="data">
     <explorer view="C:\Users\deseven\Documents\" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2015-01-30 00:37" user="deseven" host="DE7PC"/>
+    <lastopen date="2015-01-30 01:02" user="deseven" host="DE7PC"/>
   </section>
   <section name="files">
     <file name="const.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="dbd64e043d2691ba9337346e3c6bd22c"/>
+      <fingerprint md5="a4c4a8465d6e79c708b1c944203f2380"/>
     </file>
     <file name="main.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="82b347ae9073dbb27db8bc99287b42c8"/>
+      <fingerprint md5="fb45042c6df8e2db5afba2fecdc9fc69"/>
     </file>
     <file name="perlin.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="8f097ff2723d1b64173309e50a7c097c"/>
+      <fingerprint md5="c00489d004ce288c02a4a999909c9ea6"/>
     </file>
     <file name="proc.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="0ce4a733a9b8c793e1f5313f4bdf9a15"/>
+      <fingerprint md5="88b1baf8dd68d6e1a107c997a62fea2c"/>
     </file>
   </section>
   <section name="targets">
@@ -34,7 +34,8 @@
       <executable value="planets!.exe"/>
       <options unicode="1" xpskin="1" debug="1"/>
       <temporaryexe value="source"/>
-      <buildcount enable="1" value="5"/>
+      <icon enable="1">main.ico</icon>
+      <buildcount enable="1" value="7"/>
       <versioninfo enable="1">
         <field0 value="0,2,0,%BUILDCOUNT"/>
         <field1 value="0,2,0,%BUILDCOUNT"/>

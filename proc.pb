@@ -580,6 +580,3 @@ Procedure init()
   MouseLocate(DesktopW/2,DesktopH/2)
   
 EndProcedure
-; IDE Options = PureBasic 5.31 (MacOS X - x64)
-; EnableUnicode
-; EnableXP

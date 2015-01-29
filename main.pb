@@ -134,5 +134,3 @@ Repeat
   FlipBuffers()
   
 Until KeyboardPushed(#PB_Key_Escape)
-; IDE Options = PureBasic 5.31 (MacOS X - x64)
-; EnableXP
