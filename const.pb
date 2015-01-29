@@ -5,6 +5,9 @@
 #selected = 10001
 #selected_preview = 10002
 
+#min_scale = 0.2
+#max_scale = 3.0
+
 Enumeration fonts
   #font_normal
   #font_head
@@ -36,6 +39,6 @@ Enumeration sol 1000
 EndEnumeration
 
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 10
+; CursorPosition = 7
 ; EnableUnicode
 ; EnableXP

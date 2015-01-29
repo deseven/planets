@@ -293,17 +293,17 @@ Procedure createPlanet(type.i,index.i)
   planetPath(index) = PlanetVelocity(index) * Random(10000,1)
   planetRotation(index) = Random(10000,100)/1000
   
-  spriteW = PlanetRadius(index)*4+4
+  spriteW = PlanetRadius(index)*8+8
   CreateSprite(index,spriteW,spriteW,#PB_Sprite_AlphaBlending)
   StartDrawing(SpriteOutput(index))
   genTexture(spriteW/2,PlanetColor(index),bcolor,alpha,beta)
   FrontColor(RGB(70,20,80))
   DrawingMode(4)
-  Circle(spriteW/2,spriteW/2,spriteW/2-4)
+  Circle(spriteW/2,spriteW/2,spriteW/2-8)
   DrawingMode(#PB_2DDrawing_AlphaChannel)
   FillArea(0,0,RGB(70,20,80),RGB(70,20,80))
   StopDrawing()
-  ZoomSprite(index,spriteW/2,spriteW/2)
+  ZoomSprite(index,spriteW/8,spriteW/8)
 EndProcedure
 
 Procedure solEffect(x,y,sourceColor,targetColor) 
@@ -408,7 +408,7 @@ Procedure selectObject(x,y)
       GradientColor(1.0,$00000000)
       Circle(w/2,w/2,w/2,$00000000)
       StopDrawing()
-      ZoomSprite(#selected,w/2*scale,w/2*scale)
+      ;ZoomSprite(#selected,w/2*scale,w/2*scale)
       CopySprite(selectedObject,#selected_preview,#PB_Sprite_AlphaBlending)
       ZoomSprite(#selected_preview,100,100)
     EndIf
@@ -440,19 +440,13 @@ Procedure drawStars()
   Next
 EndProcedure
 
-Procedure drawOrbitTrails()
-  For i=0 To numPlanets
-    tmp.f = PlanetPath(i)
-    FrontColor(RGB(Red(PlanetColor(i)),Green(PlanetColor(i)),Blue(PlanetColor(i))))
-    For j=0 To 149
-      xo = Round(PlanetCoordsX(i)*Cos(tmp)*scale,#PB_Round_Nearest)
-      yo = Round(PlanetCoordsX(i)*Sin(tmp)*scale,#PB_Round_Nearest)
-      If xo+DesktopW/2 < DesktopW And yo+DesktopH/2 < DesktopH And xo+DesktopW/2 => 0 And yo+DesktopH/2 => 0
-        Plot(xo+DesktopW/2,yo+DesktopH/2)
-      EndIf
-      tmp - PlanetVelocity(i)
+Procedure drawOrbits()
+  If showOrbits
+    For i=0 To numPlanets
+      DrawingMode(#PB_2DDrawing_Outlined)
+      Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale,planetColor(i))
     Next
-  Next
+  EndIf
 EndProcedure
 
 Procedure drawInfo()
@@ -461,9 +455,13 @@ Procedure drawInfo()
     FPSCounter + 1
     DrawingMode(#PB_2DDrawing_Transparent)
     DrawingFont(FontID(#font_normal))
-    DrawText(4,0,"FPS: " + Str(FPS))
-    DrawText(4,20,"display: " + Str(DesktopW) + "x" + Str(DesktopH) + "@" + Str(DesktopD) + "bpp")
-    DrawText(4,40,"scale: " + "x" + StrF(scale,4))
+    DrawText(4,0,"display: " + Str(DesktopW) + "x" + Str(DesktopH) + "@" + Str(DesktopD) + "@" + Str(FPS))
+    DrawText(4,20,"scale: " + "x" + StrF(scale,4))
+    If showOrbits
+      DrawText(4,40,"orbits (o): on")
+    Else
+      DrawText(4,40,"orbits (o): off")
+    EndIf
     If ElapsedMilliseconds() - curTime >= 1000
       curTime = ElapsedMilliseconds()
       FPS = FPSCounter
@@ -524,7 +522,8 @@ Procedure drawPlanets()
   Next
 EndProcedure
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 507
-; Folding = +--
+; CursorPosition = 459
+; FirstLine = 295
+; Folding = 7--
 ; EnableUnicode
 ; EnableXP

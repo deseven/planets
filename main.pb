@@ -14,6 +14,7 @@ Global scale.d = 1.0
 Global angle.d = 0
 Global mX,mY
 
+Global showOrbits = #False
 Global selectedObject.i = -1
 Global displayInfo.b,FPSCounter.l,FPS.l,curTime.i
 
@@ -69,10 +70,14 @@ Repeat
     periodicTasks = #True
   EndIf
   
+  If KeyboardReleased(#PB_Key_O)
+    If showOrbits : showOrbits = #False : Else : showOrbits = #True : EndIf
+  EndIf
+  
   If MouseWheel() <> 0
     scale + MouseWheel()/100
-    If scale < 0.3 : scale = 0.3 : EndIf
-    If scale > 2.5 : scale = 2.5 : EndIf
+    If scale < #min_scale : scale = #min_scale : EndIf
+    If scale > #max_scale : scale = #max_scale : EndIf
     ZoomSprite(#sol,solW*scale,solW*scale)
     ZoomSprite(#sol_flare,DesktopH*scale,DesktopH*scale)
     If selectedObject = #sol
@@ -91,7 +96,7 @@ Repeat
   
   StartDrawing(ScreenOutput())
   drawStars()
-  drawOrbitTrails()
+  drawOrbits()
   drawInfo()
   StopDrawing()
   
@@ -114,6 +119,6 @@ Repeat
   
 Until KeyboardPushed(#PB_Key_Escape)
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 20
-; FirstLine = 3
+; CursorPosition = 44
+; FirstLine = 41
 ; EnableXP
