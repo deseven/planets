@@ -282,6 +282,4 @@ EndProcedure
 ; End Of Noise Functions
 
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1
-; Folding = ---
 ; EnableXP

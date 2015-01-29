@@ -1,6 +1,5 @@
 ﻿; planets! constants
 
-#screen = 9999
 #cursor = 10000
 #selected = 10001
 #selected_preview = 10002
@@ -38,7 +37,11 @@ Enumeration sol 1000
   #sol_flare
 EndEnumeration
 
+Enumeration perlinType
+  #perlin_default
+  #perlin_sol
+EndEnumeration
+
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 7
 ; EnableUnicode
 ; EnableXP

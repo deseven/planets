@@ -13,6 +13,7 @@ Tested on Windows XP/7. OpenGL version (for Mac/Linux) is not supported right no
 Specifiy the program argument (0-20) to set the number of planets.  
 Use mouse wheel to zoom in/out.  
 Use left mouse button to select an object.  
+Use O to show/hide orbits.  
 Use ESC to quit.
 
 ## Compilation

@@ -1,5 +1,6 @@
 ﻿; planets! procedures
 
+; random names generation
 Procedure.s makeWord(WordLength = 0,  Mode = 1)
   ; taken from http://www.purebasic.fr/english/viewtopic.php?f=12&t=48961
   ; procedure returns a randomly constructed word
@@ -117,17 +118,18 @@ Procedure.s makeWord(WordLength = 0,  Mode = 1)
   
 EndProcedure
 
-Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = 0)
+; random texture generation
+Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = #perlin_default)
   
   Width = rad * 2
   Height = rad * 2
   
   For x = Width-1 To 0 Step -1
     For y = Height-1 To 0 Step -1
-      If type = 1
+      ; here we're using PerlinNoise3D() for no actual reason as the Z coordinate is always 0 :)
+      ; but we'll leave that for later
+      If type = #perlin_sol
         noise.d = Unsigned(PerlinNoise3D((1 / Width) * x, (1 / Height) * y,0, 1 + Random(10)/100, 2, 6))
-      ElseIf type = 2 
-        ;noise.d = Noise3D((1 / Width) * x, (1 / Height) * y,1)
       Else
         noise.d = Unsigned(PerlinNoise3D((1 / Width) * x, (1 / Height) * y,0, alpha, beta, 6))
       EndIf
@@ -150,6 +152,7 @@ Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = 0)
   
 EndProcedure
 
+; very simple loading bar
 Procedure updateLoading(current.i,max.i)
   ClearScreen($000000)
   StartDrawing(ScreenOutput())
@@ -167,6 +170,7 @@ Procedure updateLoading(current.i,max.i)
   FlipBuffers()
 EndProcedure
 
+; creates a background star
 Procedure createStar(type.i,index.i)
   Select type
     Case #star_default
@@ -177,13 +181,16 @@ Procedure createStar(type.i,index.i)
   EndSelect
 EndProcedure
 
+; creates the heart of our solar system
 Procedure createSol(type.i)
   solName = makeWord()
   solW = (100 + Random(40))*2+2
   If solW%2
     solW + 1
   EndIf
+  solRotation = Random(15,8)/100
   CreateSprite(#sol,solW,solW,#PB_Sprite_AlphaBlending)
+  
   StartDrawing(SpriteOutput(#sol))
   Select type
     Case #sol_red
@@ -191,7 +198,9 @@ Procedure createSol(type.i)
     Case #sol_blue
       solColor = RGB(0,0,255)
   EndSelect
-  genTexture(solW/2,solColor,1,1,1,1)
+  genTexture(solW/2,solColor,1,1,1,#perlin_sol)
+  
+  ; this is a hack to draw an image in circle
   FrontColor(RGB(70,20,80))
   DrawingMode(4)
   Circle(solW/2,solW/2,solW/2-10)
@@ -200,8 +209,8 @@ Procedure createSol(type.i)
   StopDrawing()
   
   CreateSprite(#sol_flare,DesktopH/4,DesktopH/4,#PB_Sprite_AlphaBlending)
-  StartDrawing(SpriteOutput(#sol_flare))
   
+  StartDrawing(SpriteOutput(#sol_flare))
   DrawingMode(#PB_2DDrawing_Gradient|#PB_2DDrawing_AllChannels)
   CircularGradient(DesktopH/8,DesktopH/8,DesktopH/8)
   If type = #sol_blue
@@ -212,10 +221,13 @@ Procedure createSol(type.i)
   GradientColor(1.0,$00000000)
   Box(0,0,DesktopH/4,DesktopH/4)
   StopDrawing()
+  
   ZoomSprite(#sol_flare,DesktopH,DesktopH)
 EndProcedure
 
+; creates a planet based on type and (hopefully) finely-tuned params
 Procedure createPlanet(type.i,index.i)
+  ; re-init Perlin noise generator every time
   perlinInit()
   Select type
     Case #planet_earthlike
@@ -285,91 +297,57 @@ Procedure createPlanet(type.i,index.i)
   planetCoordsY(index) = Random(DesktopH/2)
   planetMass(index) = Random(9999)+1
   If index
-    planetVelocity(index) = PlanetVelocity(index-1)/1.4
+    planetVelocity(index) = planetVelocity(index-1)/1.4
   Else
     planetVelocity(index) = 0.005 + Random(6)/1000 + Random(10)/10000
   EndIf
   Debug "vel" + Str(index) + ": " + StrF(planetVelocity(index),10)
-  planetPath(index) = PlanetVelocity(index) * Random(10000,1)
+  planetPath(index) = planetVelocity(index) * Random(10000,1)
   planetRotation(index) = Random(10000,100)/1000
   
-  spriteW = PlanetRadius(index)*8+8
+  spriteW = planetRadius(index)*8+8
   CreateSprite(index,spriteW,spriteW,#PB_Sprite_AlphaBlending)
+  
+  ; this is a hack to draw an image in circle
   StartDrawing(SpriteOutput(index))
-  genTexture(spriteW/2,PlanetColor(index),bcolor,alpha,beta)
+  genTexture(spriteW/2,planetColor(index),bcolor,alpha,beta)
   FrontColor(RGB(70,20,80))
   DrawingMode(4)
   Circle(spriteW/2,spriteW/2,spriteW/2-8)
   DrawingMode(#PB_2DDrawing_AlphaChannel)
   FillArea(0,0,RGB(70,20,80),RGB(70,20,80))
   StopDrawing()
-  ZoomSprite(index,spriteW/8,spriteW/8)
+
 EndProcedure
 
+; draws the sol effect
 Procedure solEffect(x,y,sourceColor,targetColor) 
-  If (x+y)%5=0 
-    ProcedureReturn targetColor 
-  EndIf 
-  xn=x-1+Random(2) 
-  yn=y-1+Random(2) 
+  If (x+y)%5=0
+    ProcedureReturn targetColor
+  EndIf
+  xn=x-1+Random(2)
+  yn=y-1+Random(2)
   If xn<0 Or xn>=OutputWidth() Or yn<0 Or yn>=OutputHeight()
-    ProcedureReturn targetColor 
-  EndIf 
+    ProcedureReturn targetColor
+  EndIf
   ProcedureReturn Point(xn,yn)
 EndProcedure
 
-Procedure init()
-  If Not InitKeyboard() Or Not InitSprite() Or Not InitMouse() : End 1 : EndIf
-  OpenScreen(DesktopW,DesktopH,DesktopD,"planets!",#PB_Screen_SmartSynchronization,DesktopF)
-  
-  loadingPieces = 2 + numPlanets
-  updateLoading(0,loadingPieces)
-  
-  If Not (LoadFont(#font_normal,"Arial",12,#PB_Font_Bold) And LoadFont(#font_head,"Arial",14,#PB_Font_Bold))
-    DisplayInfo = #False
-  Else
-    DisplayInfo = #True
+; small procedure to help finding out whether we need to show a sprite or not
+Procedure spriteVisible(x,y,w,h)
+  If ((x < 0) Or (x > DesktopW)) And ((x+w < 0) Or (x+w > DesktopW)) And ((y < 0) Or (y > DesktopH)) And ((y+h < 0) Or (y+h > DesktopH))
+    ProcedureReturn #False
   EndIf
-  
-  SpriteQuality(#PB_Sprite_BilinearFiltering)
-  
-  CreateSprite(#cursor,11,11,#PB_Sprite_AlphaBlending)
-  StartDrawing(SpriteOutput(#cursor))
-  color = RGBA(255,255,255,255)
-  DrawingMode(#PB_2DDrawing_AllChannels)
-  Box(0,0,11,11,$00000000)
-  For i=0 To 10 : Plot(i,5,color) : Next
-  For i=0 To 10 : Plot(5,i,color) : Next
-  StopDrawing()
-  
-  CreateSprite(#screen,1,1)
-  ZoomSprite(#screen,DesktopW,DesktopH)
-  
-  ; generating stars
-  For i=0 To numStars
-    createStar(#star_default,i)
-  Next
-  
-  updateLoading(1,loadingPieces)
-  
-  ; generating planets
-  For i=0 To numPlanets
-    createPlanet(Random(7),i)
-    updateLoading(2+i,loadingPieces)
-  Next
-  
-  ; generating sol
-  createSol(Random(1))
-  updateLoading(loadingPieces,loadingPieces)
-  
-  MouseLocate(DesktopW/2,DesktopH/2)
-  
+  ProcedureReturn #True
 EndProcedure
 
+; tries to select an object
 Procedure selectObject(x,y)
   previous = selectedObject
   selectedObject = -1
+  ; we're checking if our cursor overlaps any of our objects
   For i=0 To numPlanets
+    ZoomSprite(i,planetRadius(i)*2*scale,planetRadius(i)*2*scale)
     If SpriteCollision(#cursor,x,y,i,planetCoordsCX(i),planetCoordsCY(i))
       selectedObject = i
       Break
@@ -378,6 +356,8 @@ Procedure selectObject(x,y)
   If SpriteCollision(#cursor,x,y,#sol,DesktopW/2-solW/2*scale,DesktopH/2-solW/2*scale)
     selectedObject = #sol
   EndIf
+  ; and then we're generating a preview sprite for the selected object to use it later
+  ; todo - lower the copy-paste level
   If previous <> selectedObject
     If selectedObject = #sol
       w = solW*2
@@ -396,7 +376,7 @@ Procedure selectObject(x,y)
       CopySprite(selectedObject,#selected_preview,#PB_Sprite_AlphaBlending)
       ZoomSprite(#selected_preview,100,100)
     ElseIf selectedObject > -1
-      w = PlanetRadius(selectedObject)*4+4
+      w = planetRadius(selectedObject)*4+4
       CreateSprite(#selected,w,w,#PB_Sprite_AlphaBlending)
       StartDrawing(SpriteOutput(#selected))
       DrawingMode(#PB_2DDrawing_AlphaChannel)
@@ -408,18 +388,19 @@ Procedure selectObject(x,y)
       GradientColor(1.0,$00000000)
       Circle(w/2,w/2,w/2,$00000000)
       StopDrawing()
-      ;ZoomSprite(#selected,w/2*scale,w/2*scale)
       CopySprite(selectedObject,#selected_preview,#PB_Sprite_AlphaBlending)
       ZoomSprite(#selected_preview,100,100)
     EndIf
   EndIf
 EndProcedure
 
+; draws all background stars
 Procedure drawStars()
   For i=0 To numStars
     If StarCoordsX(i) < DesktopW And StarCoordsY(i) < DesktopH And StarCoordsX(i) => 0 And StarCoordsY(i) => 0
       If Random(500) > 0
         Plot(StarCoordsX(i),StarCoordsY(i),starColor(i))
+        ; random flash event
         If Random(300000) = 0
           FrontColor($aaaaaa)
           If StarCoordsX(i) < DesktopW And StarCoordsY(i)+1 < DesktopH And StarCoordsX(i) => 0 And StarCoordsY(i)+1 => 0
@@ -440,15 +421,37 @@ Procedure drawStars()
   Next
 EndProcedure
 
+; draws a very simple and ugly orbits
 Procedure drawOrbits()
   If showOrbits
     For i=0 To numPlanets
       DrawingMode(#PB_2DDrawing_Outlined)
       Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale,planetColor(i))
+      ; here are some attempts to create a home-crafted anitaliasing for circles
+      ; which have failed miserably
+      ; don't try that approach
+      ;DrawingMode(#PB_2DDrawing_Outlined)
+      ;r = Red(planetColor(i))
+      ;g = Green(planetColor(i))
+      ;b = Blue(planetColor(i))
+      ;For j=-3 To 3
+      ;  If j = 0
+      ;    Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale,RGB(r,g,b))
+      ;  Else
+      ;    sr = r-r/4*Abs(j)
+      ;    If sr < 0 : sr = 0 : EndIf
+      ;    sg = g-g/4*Abs(j)
+      ;    If sg < 0 : sg = 0 : EndIf
+      ;    sb = b-b/4*Abs(j)
+      ;    If sb < 0 : sb = 0 : EndIf
+      ;    Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale+j,RGB(sr,sg,sb))
+      ;  EndIf
+      ;Next
     Next
   EndIf
 EndProcedure
 
+; draws various technical information and selected object information as well
 Procedure drawInfo()
   If displayInfo
     FrontColor($ffffff)
@@ -498,21 +501,26 @@ EndProcedure
 
 Procedure drawPlanets()
   For i=0 To numPlanets
-    PlanetPath(i) + PlanetVelocity(i)
-    x.f = PlanetCoordsX(i)*Cos(PlanetPath(i))*scale
-    y.f = PlanetCoordsX(i)*Sin(PlanetPath(i))*scale
-    planetCoordsCX(i) = x+DesktopW/2-PlanetRadius(i)*scale
-    planetCoordsCY(i) = y+DesktopH/2-PlanetRadius(i)*scale
-    If SpriteCollision(#screen,0,0,i,planetCoordsCX(i),planetCoordsCY(i))
+    ; calculating the current planet position in a circle
+    planetPath(i) + planetVelocity(i)
+    x.f = planetCoordsX(i)*Cos(planetPath(i))*scale
+    y.f = planetCoordsX(i)*Sin(planetPath(i))*scale
+    planetCoordsCX(i) = x+DesktopW/2-planetRadius(i)*scale
+    planetCoordsCY(i) = y+DesktopH/2-planetRadius(i)*scale
+    planetW = planetRadius(i)*scale*2
+    If spriteVisible(planetCoordsCX(i),planetCoordsCY(i),planetW,planetW)
       x1.f = planetCoordsCX(i)
       y1.f = planetCoordsCY(i)
-      x2.f = planetCoordsCX(i) + PlanetRadius(i)*scale*2
+      x2.f = planetCoordsCX(i) + planetW
       y2.f = planetCoordsCY(i)
-      x3.f = planetCoordsCX(i) + PlanetRadius(i)*scale*2
-      y3.f = planetCoordsCY(i) + PlanetRadius(i)*scale*2
+      x3.f = planetCoordsCX(i) + planetW
+      y3.f = planetCoordsCY(i) + planetW
       x4.f = planetCoordsCX(i)
-      y4.f = planetCoordsCY(i) + PlanetRadius(i)*scale*2
+      y4.f = planetCoordsCY(i) + planetW
+      ; we are basically put the sprite to the desired float coordinates
       TransformSprite(i,x1,y1,x2,y2,x3,y3,x4,y4)
+      ; this is the only(?) reliable way to use some kind of a subpixel rendering
+      ; and to get a smooth sprite movement in PB natively right now
       DisplayTransparentSprite(i,0,0)
       If selectedObject = i
         TransformSprite(#selected,x1,y1,x2,y2,x3,y3,x4,y4)
@@ -521,9 +529,53 @@ Procedure drawPlanets()
     EndIf
   Next
 EndProcedure
+
+; main initialization where we're generating everything we need
+Procedure init()
+  If Not InitKeyboard() Or Not InitSprite() Or Not InitMouse() : End 1 : EndIf
+  OpenScreen(DesktopW,DesktopH,DesktopD,"planets!",#PB_Screen_SmartSynchronization,DesktopF)
+  
+  loadingPieces = 2 + numPlanets
+  updateLoading(0,loadingPieces)
+  
+  If Not (LoadFont(#font_normal,"Arial",12,#PB_Font_Bold) And LoadFont(#font_head,"Arial",14,#PB_Font_Bold))
+    DisplayInfo = #False
+  Else
+    DisplayInfo = #True
+  EndIf
+  
+  SpriteQuality(#PB_Sprite_BilinearFiltering)
+  
+  CreateSprite(#cursor,11,11,#PB_Sprite_AlphaBlending)
+  StartDrawing(SpriteOutput(#cursor))
+  color = RGBA(255,255,255,255)
+  DrawingMode(#PB_2DDrawing_AllChannels)
+  Box(0,0,11,11,$00000000)
+  For i=0 To 10 : Plot(i,5,color) : Next
+  For i=0 To 10 : Plot(5,i,color) : Next
+  StopDrawing()
+  
+  ; generating stars
+  For i=0 To numStars
+    createStar(#star_default,i)
+  Next
+  
+  updateLoading(1,loadingPieces)
+  
+  ; generating planets
+  For i=0 To numPlanets
+    createPlanet(Random(7),i)
+    updateLoading(2+i,loadingPieces)
+  Next
+  
+  ; generating sol
+  createSol(Random(1))
+  updateLoading(loadingPieces,loadingPieces)
+  
+  MouseLocate(DesktopW/2,DesktopH/2)
+  
+EndProcedure
+
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 459
-; FirstLine = 295
-; Folding = 7--
 ; EnableUnicode
 ; EnableXP

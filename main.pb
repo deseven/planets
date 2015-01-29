@@ -2,14 +2,13 @@
 
 IncludeFile "const.pb"
 
-; globals
+; globals and defaults
 ExamineDesktops()
 Global DesktopW = DesktopWidth(0)
 Global DesktopH = DesktopHeight(0)
 Global DesktopD = DesktopDepth(0)
 Global DesktopF = DesktopFrequency(0)
 
-Global itera.i = 1
 Global scale.d = 1.0
 Global angle.d = 0
 Global mX,mY
@@ -35,7 +34,7 @@ Global Dim planetRotation.f(numPlanets)
 Global Dim planetName.s(numPlanets)
 Global Dim planetType.s(numPlanets)
 
-Global solW.i,solColor.i,solName.s
+Global solW.i,solColor.i,solName.s,solRotation.f
 
 Global numStars = DesktopW/5
 Global Dim starCoordsX(numStars)
@@ -49,22 +48,25 @@ IncludeFile "proc.pb"
 init()
 
 Repeat
-  mX = MouseX()
-  mY = MouseY()
 
   ClearScreen($000000)
   
   ExamineKeyboard()
   ExamineMouse()
   
+  mX = MouseX()
+  mY = MouseY()
+  
   ; periodic tasks (every 2nd frame)
   If periodicTasks
+    ; as for now we just reapply our sun effect
     StartDrawing(SpriteOutput(#sol))
     DrawingMode(#PB_2DDrawing_CustomFilter)
     CustomFilterCallback(@solEffect())
     Circle(solW/2,solW/2,solW/2)
     StopDrawing()
-    RotateSprite(#sol,0.1,#PB_Relative)
+    ; and rotate it
+    RotateSprite(#sol,solRotation,#PB_Relative)
     periodicTasks = #False
   Else
     periodicTasks = #True
@@ -74,19 +76,24 @@ Repeat
     If showOrbits : showOrbits = #False : Else : showOrbits = #True : EndIf
   EndIf
   
+  ; handle zoom-in/zoom-out
   If MouseWheel() <> 0
     scale + MouseWheel()/100
     If scale < #min_scale : scale = #min_scale : EndIf
     If scale > #max_scale : scale = #max_scale : EndIf
+    ; we need to zoom sol sprites and a selection sprites
+    ; we'll deal with planets later
     ZoomSprite(#sol,solW*scale,solW*scale)
     ZoomSprite(#sol_flare,DesktopH*scale,DesktopH*scale)
     If selectedObject = #sol
       ZoomSprite(#selected,solW*scale,solW*scale)
     ElseIf selectedObject > -1
-      ZoomSprite(#selected,PlanetRadius(selectedObject)*2*scale,PlanetRadius(selectedObject)*2*scale)
+      ZoomSprite(#selected,planetRadius(selectedObject)*2*scale,planetRadius(selectedObject)*2*scale)
     EndIf
   EndIf
   
+  ; a little trick to catch the LMB only when it's released
+  ; because we don't want to select an object 60+ times per second
   If MouseButton(#PB_MouseButton_Left)
     mousePressed = #True
   ElseIf mousePressed
@@ -94,31 +101,35 @@ Repeat
       selectObject(mX-5,mY-5)
   EndIf
   
+  ; all 2d drawing combined here
+  ; as it's important to use only one drawing per frame
   StartDrawing(ScreenOutput())
   drawStars()
   drawOrbits()
   drawInfo()
   StopDrawing()
   
+  ; our solar flare and sol itself
   DisplayTransparentSprite(#sol_flare,DesktopW/2-DesktopH/2*scale,DesktopH/2-DesktopH/2*scale)
   DisplayTransparentSprite(#sol,DesktopW/2-solW/2*scale,DesktopH/2-solW/2*scale)
   
+  ; now we can draw our planets
   drawPlanets()
   
+  ; and selection sprite
   If selectedObject = #sol
     DisplayTransparentSprite(#selected,DesktopW/2-solW/2*scale,DesktopH/2-solW/2*scale)
   EndIf
-  
   If selectedObject > -1
     DisplayTransparentSprite(#selected_preview,0,DesktopH-100)
   EndIf
   
+  ; our cursor goes on top of everything
   DisplayTransparentSprite(#cursor,mX-5,mY-5)
   
   FlipBuffers()
   
 Until KeyboardPushed(#PB_Key_Escape)
+
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 44
-; FirstLine = 41
 ; EnableXP
