@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.31 (MacOS X - x64)">
+  <section name="config">
+    <options closefiles="1" openmode="0" name="planets!"/>
+  </section>
+  <section name="data">
+    <explorer view="C:/Users/deseven/Documents/" pattern="0"/>
+    <log show="1"/>
+    <lastopen date="2015-01-30 00:53" user="deseven" host="de7air.local"/>
+  </section>
+  <section name="files">
+    <file name="const.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="ca6f33db867d92b5123e64fb28e625ff"/>
+    </file>
+    <file name="main.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="a16201b0522150b69f61754273eb0d64"/>
+    </file>
+    <file name="perlin.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="c6eaa37d81578d6059b14af0e960a695"/>
+    </file>
+    <file name="proc.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="a48ffd440775b087d0e6acbcbd44a11d"/>
+    </file>
+  </section>
+  <section name="targets">
+    <target name="Default Target" enabled="1" default="1">
+      <inputfile value="main.pb"/>
+      <outputfile value="planets!.app"/>
+      <executable value="planets!.app"/>
+      <options unicode="1" xpskin="1" debug="1"/>
+      <temporaryexe value="source"/>
+      <icon enable="1">main.icns</icon>
+      <buildcount enable="1" value="6"/>
+      <versioninfo enable="1">
+        <field0 value="0,2,0,%BUILDCOUNT"/>
+        <field1 value="0,2,0,%BUILDCOUNT"/>
+        <field2 value="solution"/>
+        <field3 value="planets!"/>
+        <field4 value="0.2-dev"/>
+        <field5 value="0.2"/>
+        <field6 value="solar system generator"/>
+        <field7 value="planets"/>
+        <field8 value="planets!.exe"/>
+        <field9 value="deseven"/>
+      </versioninfo>
+    </target>
+  </section>
+</project>

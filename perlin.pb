@@ -280,6 +280,5 @@ Procedure.d PerlinNoise3D(x.d, y.d, z.d, alpha.d, beta.d, interations.i)
 EndProcedure
 
 ; End Of Noise Functions
-
-; IDE Options = PureBasic 5.30 (Windows - x86)
+; IDE Options = PureBasic 5.31 (MacOS X - x64)
 ; EnableXP

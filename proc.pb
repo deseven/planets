@@ -135,16 +135,19 @@ Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = #perlin_de
       EndIf
       
       Protected b.i = Int(255 * noise)
+      If b > 255
+        b = 255
+      EndIf
       
       Select bcolor
         Case 0
-          Plot(x, y, RGB(b, Green(color), Blue(color)))
+          Plot(x, y, RGBA(b, Green(color), Blue(color), 255))
         Case 1
-          Plot(x, y, RGB(Red(color), b, Blue(color)))
+          Plot(x, y, RGBA(Red(color), b, Blue(color), 255))
         Case 2
-          Plot(x, y, RGB(Red(color), Green(color), b))
+          Plot(x, y, RGBA(Red(color), Green(color), b, 255))
         Default
-          Plot(x, y, RGB(Red(color), Green(color), Blue(color)))
+          Plot(x, y, RGBA(Red(color), Green(color), Blue(color), 255))
       EndSelect
     Next
     
@@ -198,14 +201,15 @@ Procedure createSol(type.i)
     Case #sol_blue
       solColor = RGB(0,0,255)
   EndSelect
+  DrawingMode(#PB_2DDrawing_AllChannels)
   genTexture(solW/2,solColor,1,1,1,#perlin_sol)
   
   ; this is a hack to draw an image in circle
-  FrontColor(RGB(70,20,80))
+  FrontColor(RGB(0,0,0))
   DrawingMode(4)
   Circle(solW/2,solW/2,solW/2-10)
   DrawingMode(#PB_2DDrawing_AlphaChannel)
-  FillArea(0,0,RGB(70,20,80),RGB(70,20,80))
+  FillArea(0,0,RGB(0,0,0),RGB(0,0,0))
   StopDrawing()
   
   CreateSprite(#sol_flare,DesktopH/4,DesktopH/4,#PB_Sprite_AlphaBlending)
@@ -301,7 +305,6 @@ Procedure createPlanet(type.i,index.i)
   Else
     planetVelocity(index) = 0.005 + Random(6)/1000 + Random(10)/10000
   EndIf
-  Debug "vel" + Str(index) + ": " + StrF(planetVelocity(index),10)
   planetPath(index) = planetVelocity(index) * Random(10000,1)
   planetRotation(index) = Random(10000,100)/1000
   
@@ -310,12 +313,14 @@ Procedure createPlanet(type.i,index.i)
   
   ; this is a hack to draw an image in circle
   StartDrawing(SpriteOutput(index))
+  DrawingMode(#PB_2DDrawing_AllChannels)
   genTexture(spriteW/2,planetColor(index),bcolor,alpha,beta)
-  FrontColor(RGB(70,20,80))
+  DrawingMode(#PB_2DDrawing_Default)
+  FrontColor(RGB(0,0,0))
   DrawingMode(4)
   Circle(spriteW/2,spriteW/2,spriteW/2-8)
   DrawingMode(#PB_2DDrawing_AlphaChannel)
-  FillArea(0,0,RGB(70,20,80),RGB(70,20,80))
+  FillArea(0,0,RGB(0,0,0),RGB(0,0,0))
   StopDrawing()
 
 EndProcedure
@@ -575,7 +580,6 @@ Procedure init()
   MouseLocate(DesktopW/2,DesktopH/2)
   
 EndProcedure
-
-; IDE Options = PureBasic 5.30 (Windows - x86)
+; IDE Options = PureBasic 5.31 (MacOS X - x64)
 ; EnableUnicode
 ; EnableXP

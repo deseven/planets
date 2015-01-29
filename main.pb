@@ -57,27 +57,31 @@ Repeat
   mX = MouseX()
   mY = MouseY()
   
-  ; periodic tasks (every 2nd frame)
-  If periodicTasks
-    ; as for now we just reapply our sun effect
-    StartDrawing(SpriteOutput(#sol))
-    DrawingMode(#PB_2DDrawing_CustomFilter)
-    CustomFilterCallback(@solEffect())
-    Circle(solW/2,solW/2,solW/2)
-    StopDrawing()
-    ; and rotate it
-    RotateSprite(#sol,solRotation,#PB_Relative)
-    periodicTasks = #False
-  Else
-    periodicTasks = #True
-  EndIf
+  ; reapply our sun effect
+  StartDrawing(SpriteOutput(#sol))
+  DrawingMode(#PB_2DDrawing_CustomFilter)
+  CustomFilterCallback(@solEffect())
+  Circle(solW/2,solW/2,solW/2)
+  StopDrawing()
+  ; and rotate it
+  RotateSprite(#sol,solRotation,#PB_Relative)
   
   If KeyboardReleased(#PB_Key_O)
     If showOrbits : showOrbits = #False : Else : showOrbits = #True : EndIf
   EndIf
   
+  ; additional keys for zoom-in/zoom-out
+  If KeyboardPushed(#PB_Key_Minus)
+    scale - 0.03
+    scaleUpdated = #True
+  ElseIf KeyboardPushed(#PB_Key_Equals)
+    scaleUpdated = #True
+    scale + 0.03
+  EndIf
+  
   ; handle zoom-in/zoom-out
-  If MouseWheel() <> 0
+  If MouseWheel() <> 0 Or scaleUpdated
+    scaleUpdated = #False
     scale + MouseWheel()/100
     If scale < #min_scale : scale = #min_scale : EndIf
     If scale > #max_scale : scale = #max_scale : EndIf
@@ -130,6 +134,5 @@ Repeat
   FlipBuffers()
   
 Until KeyboardPushed(#PB_Key_Escape)
-
-; IDE Options = PureBasic 5.30 (Windows - x86)
+; IDE Options = PureBasic 5.31 (MacOS X - x64)
 ; EnableXP

@@ -41,7 +41,6 @@ Enumeration perlinType
   #perlin_default
   #perlin_sol
 EndEnumeration
-
-; IDE Options = PureBasic 5.30 (Windows - x86)
+; IDE Options = PureBasic 5.31 (MacOS X - x64)
 ; EnableUnicode
 ; EnableXP
