@@ -7,7 +7,7 @@ No real planet physics as for now.
 You can get the latest stable build [here](http://deseven.info/soft).
 
 ## Compatibility
-Tested on Windows XP/7. OpenGL version (for Mac/Linux) is not supported right now.
+Tested on Windows XP/7 and OS X 10.9
 
 ## Usage/Controls
 Specifiy the program argument (0-20) to set the number of planets.  
@@ -18,3 +18,6 @@ Use ESC to quit.
 
 ## Compilation
 Use [PureBasic](http://purebasic.com/) version 5.30 or higher.
+
+## Known bugs
+Mouse wheel is not working on OS X, use plus and minus keys to zoom in/out.
