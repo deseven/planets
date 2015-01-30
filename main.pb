@@ -1,5 +1,7 @@
 ; planets!
 
+EnableExplicit
+
 IncludeFile "const.pb"
 
 ; globals and defaults
@@ -17,29 +19,18 @@ Global showOrbits = #False
 Global selectedObject.i = -1
 Global displayInfo.b,FPSCounter.l,FPS.l,curTime.i
 
+Define sunEffect.b,scaleUpdated.b,mousePressed.b
+
 Global numPlanets = Val(ProgramParameter())-1
-If numPlanets < 0 Or numPlanets > 19
+If numPlanets < 0 Or numPlanets > #max_planets-1
   numPlanets = 14
 EndIf
-Global Dim planetCoordsX(numPlanets)
-Global Dim planetCoordsY(numPlanets)
-Global Dim planetCoordsCX.f(numPlanets)
-Global Dim planetCoordsCY.f(numPlanets)
-Global Dim planetRadius(numPlanets)
-Global Dim planetMass(numPlanets)
-Global Dim planetColor(numPlanets)
-Global Dim planetVelocity.f(numPlanets)
-Global Dim planetPath.f(numPlanets)
-Global Dim planetRotation.f(numPlanets)
-Global Dim planetName.s(numPlanets)
-Global Dim planetType.s(numPlanets)
+Global Dim planets.planet(numPlanets)
 
-Global solW.i,solColor.i,solName.s,solRotation.f
+Global sol.sol
 
 Global numStars = DesktopW/5
-Global Dim starCoordsX(numStars)
-Global Dim starCoordsY(numStars)
-Global Dim starColor(numStars)
+Global Dim stars.star(numStars)
 
 IncludeFile "perlin.pb"
 IncludeFile "proc.pb"
@@ -57,14 +48,17 @@ Repeat
   mX = MouseX()
   mY = MouseY()
   
-  ; reapply our sun effect
-  StartDrawing(SpriteOutput(#sol))
-  DrawingMode(#PB_2DDrawing_CustomFilter)
-  CustomFilterCallback(@solEffect())
-  Circle(solW/2,solW/2,solW/2)
-  StopDrawing()
+  ; reapply our sun effect every 2nd frame
+  If sunEffect
+    sunEffect = #False
+    StartDrawing(SpriteOutput(#sol))
+    DrawingMode(#PB_2DDrawing_CustomFilter)
+    CustomFilterCallback(@solEffect())
+    Circle(sol\size/2,sol\size/2,sol\size/2)
+    StopDrawing()
+  Else : sunEffect = #True : EndIf
   ; and rotate it
-  RotateSprite(#sol,solRotation,#PB_Relative)
+  RotateSprite(#sol,sol\rotation,#PB_Relative)
   
   If KeyboardReleased(#PB_Key_O)
     If showOrbits : showOrbits = #False : Else : showOrbits = #True : EndIf
@@ -87,12 +81,10 @@ Repeat
     If scale > #max_scale : scale = #max_scale : EndIf
     ; we need to zoom sol sprites and a selection sprites
     ; we'll deal with planets later
-    ZoomSprite(#sol,solW*scale,solW*scale)
+    ZoomSprite(#sol,sol\size*scale,sol\size*scale)
     ZoomSprite(#sol_flare,DesktopH*scale,DesktopH*scale)
     If selectedObject = #sol
-      ZoomSprite(#selected,solW*scale,solW*scale)
-    ElseIf selectedObject > -1
-      ZoomSprite(#selected,planetRadius(selectedObject)*2*scale,planetRadius(selectedObject)*2*scale)
+      ZoomSprite(#selected,sol\size*scale,sol\size*scale)
     EndIf
   EndIf
   
@@ -115,14 +107,14 @@ Repeat
   
   ; our solar flare and sol itself
   DisplayTransparentSprite(#sol_flare,DesktopW/2-DesktopH/2*scale,DesktopH/2-DesktopH/2*scale)
-  DisplayTransparentSprite(#sol,DesktopW/2-solW/2*scale,DesktopH/2-solW/2*scale)
+  DisplayTransparentSprite(#sol,DesktopW/2-sol\size/2*scale,DesktopH/2-sol\size/2*scale)
   
   ; now we can draw our planets
   drawPlanets()
   
   ; and selection sprite
   If selectedObject = #sol
-    DisplayTransparentSprite(#selected,DesktopW/2-solW/2*scale,DesktopH/2-solW/2*scale)
+    DisplayTransparentSprite(#selected,DesktopW/2-sol\size/2*scale,DesktopH/2-sol\size/2*scale)
   EndIf
   If selectedObject > -1
     DisplayTransparentSprite(#selected_preview,0,DesktopH-100)

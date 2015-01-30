@@ -7,7 +7,7 @@
   <section name="data">
     <explorer view="C:\Users\deseven\Documents\" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2015-01-30 01:02" user="deseven" host="DE7PC"/>
+    <lastopen date="2015-01-30 13:07" user="deseven" host="DE7PC"/>
   </section>
   <section name="files">
     <file name="const.pb">

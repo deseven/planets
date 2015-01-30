@@ -120,6 +120,7 @@ EndProcedure
 
 ; random texture generation
 Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = #perlin_default)
+  Protected Width.l,Height.l,x.l,y.l,noise.d
   
   Width = rad * 2
   Height = rad * 2
@@ -157,9 +158,10 @@ EndProcedure
 
 ; very simple loading bar
 Procedure updateLoading(current.i,max.i)
+  Protected piece.i
   ClearScreen($000000)
   StartDrawing(ScreenOutput())
-  piece.i = 792/max
+  piece = 792/max
   FrontColor($ffffff)
   DrawingMode(#PB_2DDrawing_Outlined)
   Box(DesktopW/2-400,DesktopH/2-20,800,40)
@@ -175,39 +177,40 @@ EndProcedure
 
 ; creates a background star
 Procedure createStar(type.i,index.i)
+  Protected color.l
   Select type
     Case #star_default
-      StarCoordsX(index) = Random(DesktopW)
-      StarCoordsY(index) = Random(DesktopH)
+      stars(index)\x = Random(DesktopW)
+      stars(index)\y = Random(DesktopH)
       color = Random(200)+55
-      starColor(index) = RGB(color,color,color)
+      stars(index)\color = RGB(color,color,color)
   EndSelect
 EndProcedure
 
 ; creates the heart of our solar system
 Procedure createSol(type.i)
-  solName = makeWord()
-  solW = (100 + Random(40))*2+2
-  If solW%2
-    solW + 1
+  sol\name = makeWord()
+  sol\size = (100 + Random(40))*2+2
+  If sol\size%2
+    sol\size + 1
   EndIf
-  solRotation = Random(15,8)/100
-  CreateSprite(#sol,solW,solW,#PB_Sprite_AlphaBlending)
+  sol\rotation = Random(15,8)/100
+  CreateSprite(#sol,sol\size,sol\size,#PB_Sprite_AlphaBlending)
   
   StartDrawing(SpriteOutput(#sol))
   Select type
     Case #sol_red
-      solColor = RGB(255,255,0)
+      sol\color = RGB(255,255,0)
     Case #sol_blue
-      solColor = RGB(0,0,255)
+      sol\color = RGB(0,0,255)
   EndSelect
   DrawingMode(#PB_2DDrawing_AllChannels)
-  genTexture(solW/2,solColor,1,1,1,#perlin_sol)
+  genTexture(sol\size/2,sol\color,1,1,1,#perlin_sol)
   
   ; this is a hack to draw an image in circle
   FrontColor(RGB(0,0,0))
   DrawingMode(4)
-  Circle(solW/2,solW/2,solW/2-10)
+  Circle(sol\size/2,sol\size/2,sol\size/2-10)
   DrawingMode(#PB_2DDrawing_AlphaChannel)
   FillArea(0,0,RGB(0,0,0),RGB(0,0,0))
   StopDrawing()
@@ -218,9 +221,9 @@ Procedure createSol(type.i)
   DrawingMode(#PB_2DDrawing_Gradient|#PB_2DDrawing_AllChannels)
   CircularGradient(DesktopH/8,DesktopH/8,DesktopH/8)
   If type = #sol_blue
-    GradientColor(0.0,RGBA(Red(solColor),Green(solColor),Blue(solColor),$88))
+    GradientColor(0.0,RGBA(Red(sol\color),Green(sol\color),Blue(sol\color),$88))
   Else
-    GradientColor(0.0,RGBA(Red(solColor),Green(solColor),Blue(solColor),$44))
+    GradientColor(0.0,RGBA(Red(sol\color),Green(sol\color),Blue(sol\color),$44))
   EndIf
   GradientColor(1.0,$00000000)
   Box(0,0,DesktopH/4,DesktopH/4)
@@ -231,90 +234,91 @@ EndProcedure
 
 ; creates a planet based on type and (hopefully) finely-tuned params
 Procedure createPlanet(type.i,index.i)
+  Protected alpha.b,beta.b,bcolor.b,spriteW.l
   ; re-init Perlin noise generator every time
   perlinInit()
   Select type
     Case #planet_earthlike
-      planetType(index) = "earth-like"
-      planetRadius(index) = Random(15)+5
-      planetColor(index) = RGB(Random(50),Random(155)+50,Random(50)+50)
+      planets(index)\type = "earth-like"
+      planets(index)\radius = Random(15)+5
+      planets(index)\color = RGB(Random(50),Random(155)+50,Random(50)+50)
       alpha = 1
       beta = 6
       bcolor = 2
     Case #planet_water
-      planetType(index) = "water planet"
-      planetRadius(index) = Random(20)+7
-      planetColor(index) = RGB(Random(30),Random(50),Random(100)+50)
+      planets(index)\type = "water planet"
+      planets(index)\radius = Random(20)+7
+      planets(index)\color = RGB(Random(30),Random(50),Random(100)+50)
       alpha = 1
       beta = 6
       bcolor = 2
     Case #planet_ice
-      planetType(index) = "ice planet"
-      planetRadius(index) = Random(20)+7
-      planetColor(index) = RGB(Random(40)+140,Random(40)+140,Random(40)+140)
+      planets(index)\type = "ice planet"
+      planets(index)\radius = Random(20)+7
+      planets(index)\color = RGB(Random(40)+140,Random(40)+140,Random(40)+140)
       alpha = 1
       beta = 6
       bcolor = 0
     Case #planet_gasgiant
-      planetType(index) = "gas giant"
-      planetRadius(index) = Random(20)+30
-      planetColor(index) = RGB(Random(200)+10,Random(200)+10,Random(200)+10)
+      planets(index)\type = "gas giant"
+      planets(index)\radius = Random(20)+30
+      planets(index)\color = RGB(Random(200)+10,Random(200)+10,Random(200)+10)
       alpha = 1
       beta = 1
       bcolor = 2
     Case #planet_lava
-      planetType(index) = "lava planet"
-      planetRadius(index) = Random(12)+6
-      planetColor(index) = RGB(Random(10)+200,Random(20),Random(20))
+      planets(index)\type = "lava planet"
+      planets(index)\radius = Random(12)+6
+      planets(index)\color = RGB(Random(10)+200,Random(20),Random(20))
       alpha = 1
       beta = 6
       bcolor = 1
     Case #planet_desert
-      planetType(index) = "desert planet"
-      planetRadius(index) = Random(10)+6
-      planetColor(index) = RGB(Random(10)+240,Random(20)+200,Random(10)+120)
+      planets(index)\type = "desert planet"
+      planets(index)\radius = Random(10)+6
+      planets(index)\color = RGB(Random(10)+240,Random(20)+200,Random(10)+120)
       alpha = 2
       beta = 6
       bcolor = Random(2,1)
     Case #planet_rock
-      planetType(index) = "rock planet"
-      planetRadius(index) = Random(18)+6
-      planetColor(index) = RGB(Random(5),Random(10)+100,Random(10)+100)
+      planets(index)\type = "rock planet"
+      planets(index)\radius = Random(18)+6
+      planets(index)\color = RGB(Random(5),Random(10)+100,Random(10)+100)
       alpha = 2
       beta = 6
       bcolor = 0
     Case #planet_acid
-      planetType(index) = "acid planet"
-      planetRadius(index) = Random(10)+10
-      planetColor(index) = RGB(Random(5)+100,Random(50)+50,Random(10)+10)
+      planets(index)\type = "acid planet"
+      planets(index)\radius = Random(10)+10
+      planets(index)\color = RGB(Random(5)+100,Random(50)+50,Random(10)+10)
       alpha = 2
       beta = 6
       bcolor = Random(2,1)
   EndSelect
   
   If index
-    planetCoordsX(index) = planetCoordsX(index-1) + planetRadius(index-1)*2 + planetRadius(index)*2 + Random(100)
+    planets(index)\x = planets(index-1)\x + planets(index-1)\radius*2 + planets(index)\radius*2 + Random(100)
   Else
-    planetCoordsX(index) = 140 + Random(20) + planetRadius(index)*2
+    planets(index)\x = 140 + Random(20) + planets(index)\radius*2
   EndIf
-  planetName(index) = makeWord()
-  planetCoordsY(index) = Random(DesktopH/2)
-  planetMass(index) = Random(9999)+1
+  planets(index)\name = makeWord()
+  planets(index)\y = Random(DesktopH/2)
+  planets(index)\mass = Random(9999)+1
   If index
-    planetVelocity(index) = planetVelocity(index-1)/1.4
+    planets(index)\velocity = planets(index-1)\velocity/1.4
   Else
-    planetVelocity(index) = 0.005 + Random(6)/1000 + Random(10)/10000
+    planets(index)\velocity = 0.005 + Random(6)/1000 + Random(10)/10000
   EndIf
-  planetPath(index) = planetVelocity(index) * Random(10000,1)
-  planetRotation(index) = Random(10000,100)/1000
+  planets(index)\path = planets(index)\velocity * Random(10000,1)
+  planets(index)\rotation = Random(10000,100)/1000
   
-  spriteW = planetRadius(index)*8+8
+  spriteW = planets(index)\radius*8+8
   CreateSprite(index,spriteW,spriteW,#PB_Sprite_AlphaBlending)
   
   ; this is a hack to draw an image in circle
   StartDrawing(SpriteOutput(index))
   DrawingMode(#PB_2DDrawing_AllChannels)
-  genTexture(spriteW/2,planetColor(index),bcolor,alpha,beta)
+  genTexture(spriteW/2,planets(index)\color,bcolor,alpha,beta)
   DrawingMode(#PB_2DDrawing_Default)
   FrontColor(RGB(0,0,0))
   DrawingMode(4)
@@ -326,7 +330,8 @@ Procedure createPlanet(type.i,index.i)
 EndProcedure
 
 ; draws the sol effect
-Procedure solEffect(x,y,sourceColor,targetColor) 
+Procedure solEffect(x,y,sourceColor,targetColor)
+  Protected xn.l,yn.l
   If (x+y)%5=0
     ProcedureReturn targetColor
   EndIf
@@ -348,24 +353,25 @@ EndProcedure
 
 ; tries to select an object
 Procedure selectObject(x,y)
+  Protected previous.l,i.b,w.l
   previous = selectedObject
   selectedObject = -1
   ; we're checking if our cursor overlaps any of our objects
   For i=0 To numPlanets
-    ZoomSprite(i,planetRadius(i)*2*scale,planetRadius(i)*2*scale)
-    If SpriteCollision(#cursor,x,y,i,planetCoordsCX(i),planetCoordsCY(i))
+    ZoomSprite(i,planets(i)\radius*2*scale,planets(i)\radius*2*scale)
+    If SpriteCollision(#cursor,x,y,i,planets(i)\cx,planets(i)\cy)
       selectedObject = i
       Break
     EndIf
   Next
-  If SpriteCollision(#cursor,x,y,#sol,DesktopW/2-solW/2*scale,DesktopH/2-solW/2*scale)
+  If SpriteCollision(#cursor,x,y,#sol,DesktopW/2-sol\size/2*scale,DesktopH/2-sol\size/2*scale)
     selectedObject = #sol
   EndIf
   ; and then we're generating a preview sprite for the selected object to use it later
   ; todo - lower the copy-paste level
   If previous <> selectedObject
     If selectedObject = #sol
-      w = solW*2
+      w = sol\size*2
       CreateSprite(#selected,w,w,#PB_Sprite_AlphaBlending)
       StartDrawing(SpriteOutput(#selected))
       DrawingMode(#PB_2DDrawing_AlphaChannel)
@@ -381,7 +387,7 @@ Procedure selectObject(x,y)
       CopySprite(selectedObject,#selected_preview,#PB_Sprite_AlphaBlending)
       ZoomSprite(#selected_preview,100,100)
     ElseIf selectedObject > -1
-      w = planetRadius(selectedObject)*4+4
+      w = planets(selectedObject)\radius*4+4
       CreateSprite(#selected,w,w,#PB_Sprite_AlphaBlending)
       StartDrawing(SpriteOutput(#selected))
       DrawingMode(#PB_2DDrawing_AlphaChannel)
@@ -401,24 +407,25 @@ EndProcedure
 
 ; draws all background stars
 Procedure drawStars()
+  Protected i.l
   For i=0 To numStars
-    If StarCoordsX(i) < DesktopW And StarCoordsY(i) < DesktopH And StarCoordsX(i) => 0 And StarCoordsY(i) => 0
+    If stars(i)\x < DesktopW And stars(i)\y < DesktopH And stars(i)\x => 0 And stars(i)\y => 0
       If Random(500) > 0
-        Plot(StarCoordsX(i),StarCoordsY(i),starColor(i))
+        Plot(stars(i)\x,stars(i)\y,stars(i)\color)
         ; random flash event
         If Random(300000) = 0
           FrontColor($aaaaaa)
-          If StarCoordsX(i) < DesktopW And StarCoordsY(i)+1 < DesktopH And StarCoordsX(i) => 0 And StarCoordsY(i)+1 => 0
-            Plot(StarCoordsX(i),StarCoordsY(i)+1)
+          If stars(i)\x < DesktopW And stars(i)\y+1 < DesktopH And stars(i)\x => 0 And stars(i)\y+1 => 0
+            Plot(stars(i)\x,stars(i)\y+1)
           EndIf
-          If StarCoordsX(i) < DesktopW And StarCoordsY(i)-1 < DesktopH And StarCoordsX(i) => 0 And StarCoordsY(i)-1 => 0
-            Plot(StarCoordsX(i),StarCoordsY(i)-1)
+          If stars(i)\x < DesktopW And stars(i)\y-1 < DesktopH And stars(i)\x => 0 And stars(i)\y-1 => 0
+            Plot(stars(i)\x,stars(i)\y-1)
           EndIf
-          If StarCoordsX(i)+1 < DesktopW And StarCoordsY(i) < DesktopH And StarCoordsX(i)+1 => 0 And StarCoordsY(i) => 0
-            Plot(StarCoordsX(i)+1,StarCoordsY(i))
+          If stars(i)\x+1 < DesktopW And stars(i)\y < DesktopH And stars(i)\x+1 => 0 And stars(i)\y => 0
+            Plot(stars(i)\x+1,stars(i)\y)
           EndIf
-          If StarCoordsX(i)-1 < DesktopW And StarCoordsY(i) < DesktopH And StarCoordsX(i)-1 => 0 And StarCoordsY(i) => 0
-            Plot(StarCoordsX(i)-1,StarCoordsY(i))
+          If stars(i)\x-1 < DesktopW And stars(i)\y < DesktopH And stars(i)\x-1 => 0 And stars(i)\y => 0
+            Plot(stars(i)\x-1,stars(i)\y)
           EndIf
         EndIf
       EndIf
@@ -428,10 +435,11 @@ EndProcedure
 
 ; draws a very simple and ugly orbits
 Procedure drawOrbits()
+  Protected i.b
   If showOrbits
     For i=0 To numPlanets
       DrawingMode(#PB_2DDrawing_Outlined)
-      Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale,planetColor(i))
+      Circle(DesktopW/2,DesktopH/2,planets(i)\x*scale,planets(i)\color)
       ; here are some attempts to create a home-crafted anitaliasing for circles
       ; which have failed miserably
       ; don't try that approach
@@ -458,6 +466,7 @@ EndProcedure
 
 ; draws various technical information and selected object information as well
 Procedure drawInfo()
+  Protected name.s,type.s,radius.s,velocity.s,frameWidth.l
   If displayInfo
     FrontColor($ffffff)
     FPSCounter + 1
@@ -476,15 +485,15 @@ Procedure drawInfo()
       FPSCounter = 0
     EndIf
     If selectedObject = #sol
-      name.s = solName
-      type.s = "star"
-      radius.s = "radius: " + Str(solW/2)
-      velocity.s = "velocity: 0"
+      name = sol\name
+      type = "star"
+      radius = "radius: " + Str(sol\size)
+      velocity = "velocity: 0"
     ElseIf selectedObject > -1
-      name.s = planetName(selectedObject) + " (" + solName + " " + Chr(97+selectedObject) + ")"
-      type.s = planetType(selectedObject)
-      radius.s = "radius: " + Str(planetRadius(selectedObject))
-      velocity.s = "velocity: " + StrF(planetVelocity(selectedObject)*10000,2)
+      name = planets(selectedObject)\name + " (" + sol\name + " " + Chr(97+selectedObject) + ")"
+      type = planets(selectedObject)\type
+      radius = "radius: " + Str(planets(selectedObject)\radius)
+      velocity = "velocity: " + StrF(planets(selectedObject)\velocity*10000,2)
     EndIf
     If selectedObject > -1
       DrawingFont(FontID(#font_head))
@@ -505,23 +514,24 @@ Procedure drawInfo()
 EndProcedure
 
 Procedure drawPlanets()
+  Protected i.b,x.f,y.f,x1.f,y1.f,x2.f,y2.f,x3.f,y3.f,x4.f,y4.f,planetW.l
   For i=0 To numPlanets
     ; calculating the current planet position in a circle
-    planetPath(i) + planetVelocity(i)
-    x.f = planetCoordsX(i)*Cos(planetPath(i))*scale
-    y.f = planetCoordsX(i)*Sin(planetPath(i))*scale
-    planetCoordsCX(i) = x+DesktopW/2-planetRadius(i)*scale
-    planetCoordsCY(i) = y+DesktopH/2-planetRadius(i)*scale
-    planetW = planetRadius(i)*scale*2
-    If spriteVisible(planetCoordsCX(i),planetCoordsCY(i),planetW,planetW)
-      x1.f = planetCoordsCX(i)
-      y1.f = planetCoordsCY(i)
-      x2.f = planetCoordsCX(i) + planetW
-      y2.f = planetCoordsCY(i)
-      x3.f = planetCoordsCX(i) + planetW
-      y3.f = planetCoordsCY(i) + planetW
-      x4.f = planetCoordsCX(i)
-      y4.f = planetCoordsCY(i) + planetW
+    planets(i)\path + planets(i)\velocity
+    x = planets(i)\x*Cos(planets(i)\path)*scale
+    y = planets(i)\x*Sin(planets(i)\path)*scale
+    planets(i)\cx = x+DesktopW/2-planets(i)\radius*scale
+    planets(i)\cy = y+DesktopH/2-planets(i)\radius*scale
+    planetW = planets(i)\radius*scale*2
+    If spriteVisible(planets(i)\cx,planets(i)\cy,planetW,planetW)
+      x1 = planets(i)\cx
+      y1 = planets(i)\cy
+      x2 = planets(i)\cx + planetW
+      y2 = planets(i)\cy
+      x3 = planets(i)\cx + planetW
+      y3 = planets(i)\cy + planetW
+      x4 = planets(i)\cx
+      y4 = planets(i)\cy + planetW
       ; we are basically put the sprite to the desired float coordinates
       TransformSprite(i,x1,y1,x2,y2,x3,y3,x4,y4)
       ; this is the only(?) reliable way to use some kind of a subpixel rendering
@@ -537,6 +547,7 @@ EndProcedure
 
 ; main initialization where we're generating everything we need
 Procedure init()
+  Protected loadingPieces.b,color.l,i.l
   If Not InitKeyboard() Or Not InitSprite() Or Not InitMouse() : End 1 : EndIf
   OpenScreen(DesktopW,DesktopH,DesktopD,"planets!",#PB_Screen_SmartSynchronization,DesktopF)
   
