@@ -1,5 +1,5 @@
 ## planets!
-
+![planets!](http://deseven.info/sys/planets!.png)  
 Simple solar system simulator. Everything is procedurally generated, so it can be used as a screensaver (just change the binary extension to "scr").  
 No real planet physics as for now.
 
