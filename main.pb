@@ -105,6 +105,9 @@ Repeat
   drawInfo()
   StopDrawing()
   
+  ; background nebula
+  DisplayTransparentSprite(#nebula,0,0)
+  
   ; our solar flare and sol itself
   DisplayTransparentSprite(#sol_flare,DesktopW/2-DesktopH/2*scale,DesktopH/2-DesktopH/2*scale)
   DisplayTransparentSprite(#sol,DesktopW/2-sol\size/2*scale,DesktopH/2-sol\size/2*scale)

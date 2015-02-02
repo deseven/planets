@@ -10,6 +10,8 @@
 #max_planets = 20
 #max_moons = 10
 
+#nebula = 5000
+
 Enumeration fonts
   #font_normal
   #font_head
@@ -43,6 +45,7 @@ EndEnumeration
 Enumeration perlinType
   #perlin_default
   #perlin_sol
+  #perlin_nebula
 EndEnumeration
 
 Structure moon

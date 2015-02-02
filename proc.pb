@@ -131,6 +131,8 @@ Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = #perlin_de
       ; but we'll leave that for later
       If type = #perlin_sol
         noise.d = Unsigned(PerlinNoise3D((1 / Width) * x, (1 / Height) * y,0, 1 + Random(10)/100, 2, 6))
+      ElseIf type = #perlin_nebula
+        noise.d = Unsigned(PerlinNoise3D((1 / Width) * x, (1 / Height) * y,0, 1 + Random(10)/100, 2, 6))
       Else
         noise.d = Unsigned(PerlinNoise3D((1 / Width) * x, (1 / Height) * y,0, alpha, beta, 6))
       EndIf
@@ -147,6 +149,8 @@ Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = #perlin_de
           Plot(x, y, RGBA(Red(color), b, Blue(color), 255))
         Case 2
           Plot(x, y, RGBA(Red(color), Green(color), b, 255))
+        Case 3
+          Plot(x, y, RGBA(b, b, b, 20))
         Default
           Plot(x, y, RGBA(Red(color), Green(color), Blue(color), 255))
       EndSelect
@@ -173,6 +177,19 @@ Procedure updateLoading(current.i,max.i)
   EndIf
   StopDrawing()
   FlipBuffers()
+EndProcedure
+
+; creates a background nebula
+Procedure createNebula(type.i)
+  ; re-init Perlin noise generator every time
+  perlinInit()
+  Protected w.w = DesktopH/2
+  CreateSprite(#nebula,w,w,#PB_Sprite_AlphaBlending)
+  StartDrawing(SpriteOutput(#nebula))
+  DrawingMode(#PB_2DDrawing_AllChannels)
+  genTexture(w/2,0,3,0,0,#perlin_nebula)
+  StopDrawing()
+  ZoomSprite(#nebula,DesktopW,DesktopH)
 EndProcedure
 
 ; creates a background star
@@ -440,27 +457,10 @@ Procedure drawOrbits()
     For i=0 To numPlanets
       DrawingMode(#PB_2DDrawing_Outlined)
       Circle(DesktopW/2,DesktopH/2,planets(i)\x*scale,planets(i)\color)
-      ; here are some attempts to create a home-crafted anitaliasing for circles
-      ; which have failed miserably
-      ; don't try that approach
-      ;DrawingMode(#PB_2DDrawing_Outlined)
-      ;r = Red(planetColor(i))
-      ;g = Green(planetColor(i))
-      ;b = Blue(planetColor(i))
-      ;For j=-3 To 3
-      ;  If j = 0
-      ;    Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale,RGB(r,g,b))
-      ;  Else
-      ;    sr = r-r/4*Abs(j)
-      ;    If sr < 0 : sr = 0 : EndIf
-      ;    sg = g-g/4*Abs(j)
-      ;    If sg < 0 : sg = 0 : EndIf
-      ;    sb = b-b/4*Abs(j)
-      ;    If sb < 0 : sb = 0 : EndIf
-      ;    Circle(DesktopW/2,DesktopH/2,planetCoordsX(i)*scale+j,RGB(sr,sg,sb))
-      ;  EndIf
-      ;Next
     Next
+  ElseIf selectedObject > -1 And selectedObject <> #sol
+    DrawingMode(#PB_2DDrawing_Outlined)
+    Circle(DesktopW/2,DesktopH/2,planets(selectedObject)\x*scale,planets(selectedObject)\color)
   EndIf
 EndProcedure
 
@@ -551,7 +551,7 @@ Procedure init()
   If Not InitKeyboard() Or Not InitSprite() Or Not InitMouse() : End 1 : EndIf
   OpenScreen(DesktopW,DesktopH,DesktopD,"planets!",#PB_Screen_SmartSynchronization,DesktopF)
   
-  loadingPieces = 2 + numPlanets
+  loadingPieces = 3 + numPlanets
   updateLoading(0,loadingPieces)
   
   If Not (LoadFont(#font_normal,"Arial",12,#PB_Font_Bold) And LoadFont(#font_head,"Arial",14,#PB_Font_Bold))
@@ -578,10 +578,15 @@ Procedure init()
   
   updateLoading(1,loadingPieces)
   
+  ; generating nebula
+  createNebula(0)
+  
+  updateLoading(2,loadingPieces)
+  
   ; generating planets
   For i=0 To numPlanets
     createPlanet(Random(7),i)
-    updateLoading(2+i,loadingPieces)
+    updateLoading(3+i,loadingPieces)
   Next
   
   ; generating sol
