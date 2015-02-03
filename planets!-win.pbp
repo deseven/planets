@@ -7,16 +7,16 @@
   <section name="data">
     <explorer view="C:\Users\deseven\Documents\" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2015-02-03 02:27" user="deseven" host="DE7PC"/>
+    <lastopen date="2015-02-03 13:58" user="deseven" host="DE7PC"/>
   </section>
   <section name="files">
     <file name="const.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="ccc087291cf8af5a763262924b5fd839"/>
+      <fingerprint md5="530bbf82b98169b63d25ea2d0a022505"/>
     </file>
     <file name="main.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="3ad1a721ba41e343d541d3a7aa599ce8"/>
+      <fingerprint md5="dc8850f7773a666b16a8ddf452fdfa97"/>
     </file>
     <file name="perlin.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
@@ -24,7 +24,7 @@
     </file>
     <file name="proc.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="cf12bf7d7b7c384b4410ab51513ca294"/>
+      <fingerprint md5="41f8e79af76ddb5e4ed4454e35e01514"/>
     </file>
   </section>
   <section name="targets">
@@ -32,7 +32,7 @@
       <inputfile value="main.pb"/>
       <outputfile value="planets!.exe"/>
       <executable value="planets!.exe"/>
-      <options unicode="1" xpskin="1"/>
+      <options unicode="1" xpskin="1" debug="1"/>
       <temporaryexe value="source"/>
       <icon enable="1">main.ico</icon>
       <buildcount enable="1" value="9"/>

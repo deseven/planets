@@ -13,7 +13,8 @@ Global DesktopF = DesktopFrequency(0)
 
 Global scale.d = 1.0
 Global angle.d = 0
-Global mX,mY
+Global mX.l,mY.l
+Global winX.l,winY.l
 
 Global showOrbits = #False
 Global selectedObject.i = -1
@@ -127,5 +128,7 @@ Repeat
   DisplayTransparentSprite(#cursor,mX-5,mY-5)
   
   FlipBuffers()
+  
+  checkScreen()
   
 Until KeyboardPushed(#PB_Key_Escape)

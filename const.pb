@@ -1,5 +1,7 @@
 ﻿; planets! constants
 
+#name = "planets!"
+
 #cursor = 10000
 #selected = 10001
 #selected_preview = 10002
@@ -30,6 +32,7 @@ Enumeration planetTypes
   #planet_desert
   #planet_rock
   #planet_acid
+  #planet_asteroidbelt
 EndEnumeration
 
 Enumeration solTypes
@@ -74,8 +77,9 @@ Structure planet
   velocity.f
   path.f
   rotation.f
+  type.b
   name.s
-  type.s
+  descr.s
   Array moons.moon(#max_moons-1)
 EndStructure
 

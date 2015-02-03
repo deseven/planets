@@ -150,7 +150,7 @@ Procedure.i genTexture(rad.i,color.i,bcolor.i,alpha.i,beta.i,type.i = #perlin_de
         Case 2
           Plot(x, y, RGBA(Red(color), Green(color), b, 255))
         Case 3
-          Plot(x, y, RGBA(b, b, b, 20))
+          Plot(x, y, RGBA(b, b, b, 25))
         Default
           Plot(x, y, RGBA(Red(color), Green(color), Blue(color), 255))
       EndSelect
@@ -256,76 +256,91 @@ Procedure createPlanet(type.i,index.i)
   perlinInit()
   Select type
     Case #planet_earthlike
-      planets(index)\type = "earth-like"
+      planets(index)\type = #planet_earthlike
+      planets(index)\descr = "earth-like"
       planets(index)\radius = Random(15)+5
       planets(index)\color = RGB(Random(50),Random(155)+50,Random(50)+50)
       alpha = 1
       beta = 6
       bcolor = 2
     Case #planet_water
-      planets(index)\type = "water planet"
+      planets(index)\type = #planet_water
+      planets(index)\descr = "water planet"
       planets(index)\radius = Random(20)+7
       planets(index)\color = RGB(Random(30),Random(50),Random(100)+50)
       alpha = 1
       beta = 6
       bcolor = 2
     Case #planet_ice
-      planets(index)\type = "ice planet"
+      planets(index)\type = #planet_ice
+      planets(index)\descr = "ice planet"
       planets(index)\radius = Random(20)+7
       planets(index)\color = RGB(Random(40)+140,Random(40)+140,Random(40)+140)
       alpha = 1
       beta = 6
       bcolor = 0
     Case #planet_gasgiant
-      planets(index)\type = "gas giant"
+      planets(index)\type = #planet_gasgiant
+      planets(index)\descr = "gas giant"
       planets(index)\radius = Random(20)+30
       planets(index)\color = RGB(Random(200)+10,Random(200)+10,Random(200)+10)
       alpha = 1
       beta = 1
       bcolor = 2
     Case #planet_lava
-      planets(index)\type = "lava planet"
+      planets(index)\type = #planet_lava
+      planets(index)\descr = "lava planet"
       planets(index)\radius = Random(12)+6
       planets(index)\color = RGB(Random(10)+200,Random(20),Random(20))
       alpha = 1
       beta = 6
       bcolor = 1
     Case #planet_desert
-      planets(index)\type = "desert planet"
+      planets(index)\type = #planet_desert
+      planets(index)\descr = "desert planet"
       planets(index)\radius = Random(10)+6
       planets(index)\color = RGB(Random(10)+240,Random(20)+200,Random(10)+120)
       alpha = 2
       beta = 6
       bcolor = Random(2,1)
     Case #planet_rock
-      planets(index)\type = "rock planet"
+      planets(index)\type = #planet_rock
+      planets(index)\descr = "rock planet"
       planets(index)\radius = Random(18)+6
       planets(index)\color = RGB(Random(5),Random(10)+100,Random(10)+100)
       alpha = 2
       beta = 6
       bcolor = 0
     Case #planet_acid
-      planets(index)\type = "acid planet"
+      planets(index)\type = #planet_acid
+      planets(index)\descr = "acid planet"
       planets(index)\radius = Random(10)+10
       planets(index)\color = RGB(Random(5)+100,Random(50)+50,Random(10)+10)
       alpha = 2
       beta = 6
       bcolor = Random(2,1)
+    Case #planet_asteroidbelt
+      planets(index)\type = #planet_asteroidbelt
+      planets(index)\radius = Random(20)+10
+      alpha = 1
+      beta = 6
+      bcolor = 3
   EndSelect
   
   If index
-    planets(index)\x = planets(index-1)\x + planets(index-1)\radius*2 + planets(index)\radius*2 + Random(100)
+    planets(index)\x = planets(index-1)\x + planets(index-1)\radius*Random(3,2) + planets(index)\radius*2 + Random(100)
   Else
     planets(index)\x = 140 + Random(20) + planets(index)\radius*2
   EndIf
-  planets(index)\name = makeWord()
-  planets(index)\y = Random(DesktopH/2)
-  planets(index)\mass = Random(9999)+1
   If index
     planets(index)\velocity = planets(index-1)\velocity/1.4
   Else
     planets(index)\velocity = 0.005 + Random(6)/1000 + Random(10)/10000
   EndIf
+  If planets(index)\type = #planet_asteroidbelt : ProcedureReturn : EndIf
+  planets(index)\name = makeWord()
+  planets(index)\y = Random(DesktopH/2)
+  planets(index)\mass = Random(9999)+1
   planets(index)\path = planets(index)\velocity * Random(10000,1)
   planets(index)\rotation = Random(10000,100)/1000
   
@@ -368,6 +383,19 @@ Procedure spriteVisible(x,y,w,h)
   ProcedureReturn #True
 EndProcedure
 
+; usable area detection for OS X
+Procedure getArea()
+  CompilerIf #PB_Compiler_OS = #PB_OS_MacOS
+    Protected screen.i,frame.NSRect
+    screen = CocoaMessage(0,0,"NSScreen mainScreen")
+    CocoaMessage(@frame,screen,"visibleFrame")
+    winX = frame\origin\x
+    winY = DesktopH-frame\size\height-frame\origin\y
+    DesktopW = frame\size\width
+    DesktopH = frame\size\height
+  CompilerEndIf
+EndProcedure
+
 ; tries to select an object
 Procedure selectObject(x,y)
   Protected previous.l,i.b,w.l
@@ -375,6 +403,7 @@ Procedure selectObject(x,y)
   selectedObject = -1
   ; we're checking if our cursor overlaps any of our objects
   For i=0 To numPlanets
+    If planets(i)\type = #planet_asteroidbelt : Continue : EndIf 
     ZoomSprite(i,planets(i)\radius*2*scale,planets(i)\radius*2*scale)
     If SpriteCollision(#cursor,x,y,i,planets(i)\cx,planets(i)\cy)
       selectedObject = i
@@ -455,6 +484,7 @@ Procedure drawOrbits()
   Protected i.b
   If showOrbits
     For i=0 To numPlanets
+      If planets(i)\type = #planet_asteroidbelt : Continue : EndIf
       DrawingMode(#PB_2DDrawing_Outlined)
       Circle(DesktopW/2,DesktopH/2,planets(i)\x*scale,planets(i)\color)
     Next
@@ -466,7 +496,7 @@ EndProcedure
 
 ; draws various technical information and selected object information as well
 Procedure drawInfo()
-  Protected name.s,type.s,radius.s,velocity.s,frameWidth.l
+  Protected name.s,descr.s,radius.s,velocity.s,frameWidth.l
   If displayInfo
     FrontColor($ffffff)
     FPSCounter + 1
@@ -486,18 +516,21 @@ Procedure drawInfo()
     EndIf
     If selectedObject = #sol
       name = sol\name
-      type = "star"
+      descr = "star"
       radius = "radius: " + Str(sol\size)
       velocity = "velocity: 0"
     ElseIf selectedObject > -1
       name = planets(selectedObject)\name + " (" + sol\name + " " + Chr(97+selectedObject) + ")"
-      type = planets(selectedObject)\type
+      descr = planets(selectedObject)\descr
       radius = "radius: " + Str(planets(selectedObject)\radius)
       velocity = "velocity: " + StrF(planets(selectedObject)\velocity*10000,2)
     EndIf
     If selectedObject > -1
       DrawingFont(FontID(#font_head))
       frameWidth = TextWidth(name) + 112
+      If frameWidth < TextWidth(descr) + 112 : frameWidth = TextWidth(descr) + 112 : EndIf
+      If frameWidth < TextWidth(radius) + 112 : frameWidth = TextWidth(radius) + 112 : EndIf
+      If frameWidth < TextWidth(velocity) + 112 : frameWidth = TextWidth(velocity) + 112 : EndIf
       If frameWidth < 200 : frameWidth = 200 : EndIf
       DrawingMode(#PB_2DDrawing_Default)
       Box(0,DesktopH-100,frameWidth,100,$333333)
@@ -506,7 +539,7 @@ Procedure drawInfo()
       DrawingMode(#PB_2DDrawing_Transparent)
       DrawText(106,DesktopH-100,name)
       DrawingFont(FontID(#font_normal))
-      DrawText(106,DesktopH-80,type)
+      DrawText(106,DesktopH-80,descr)
       DrawText(106,DesktopH-40,radius)
       DrawText(106,DesktopH-20,velocity)
     EndIf
@@ -516,6 +549,7 @@ EndProcedure
 Procedure drawPlanets()
   Protected i.b,x.f,y.f,x1.f,y1.f,x2.f,y2.f,x3.f,y3.f,x4.f,y4.f,planetW.l
   For i=0 To numPlanets
+    If planets(i)\type = #planet_asteroidbelt : Continue : EndIf
     ; calculating the current planet position in a circle
     planets(i)\path + planets(i)\velocity
     x = planets(i)\x*Cos(planets(i)\path)*scale
@@ -545,11 +579,26 @@ Procedure drawPlanets()
   Next
 EndProcedure
 
+; processing window events
+Procedure checkScreen()
+  CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+    If WindowEvent() = #PB_Event_CloseWindow
+      End
+    EndIf
+  CompilerEndIf
+EndProcedure
+
 ; main initialization where we're generating everything we need
 Procedure init()
   Protected loadingPieces.b,color.l,i.l
   If Not InitKeyboard() Or Not InitSprite() Or Not InitMouse() : End 1 : EndIf
-  OpenScreen(DesktopW,DesktopH,DesktopD,"planets!",#PB_Screen_SmartSynchronization,DesktopF)
+  CompilerIf #PB_Compiler_OS = #PB_OS_Windows
+    OpenWindow(0,0,0,DesktopW,DesktopH,#name,#PB_Window_BorderLess)
+    OpenWindowedScreen(WindowID(0),winX,winY,DesktopW,DesktopH,#False,0,0,#PB_Screen_WaitSynchronization)
+    SetFrameRate(DesktopF)
+  CompilerElse
+    OpenScreen(DesktopW,DesktopH,DesktopD,#name,#PB_Screen_SmartSynchronization,DesktopF)
+  CompilerEndIf
   
   loadingPieces = 3 + numPlanets
   updateLoading(0,loadingPieces)
@@ -585,7 +634,7 @@ Procedure init()
   
   ; generating planets
   For i=0 To numPlanets
-    createPlanet(Random(7),i)
+    createPlanet(Random(8),i)
     updateLoading(3+i,loadingPieces)
   Next
   
