@@ -1,10 +1,8 @@
+#WARNING: superseded by [planets-love2d](https://github.com/deseven/planets-love2d)
 ## planets!
 ![planets!](http://deseven.info/sys/planets!.png)  
 Simple solar system simulator. Everything is procedurally generated, so it can be used as a screensaver (just change the binary extension to "scr").  
 No real planet physics as for now.
-
-## Binaries
-You can get the latest stable build [here](http://deseven.info/soft).
 
 ## Compatibility
 Tested on Windows XP/7 and OS X 10.9
